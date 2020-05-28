@@ -1,5 +1,5 @@
 # VideoRoom
 
-![Social](VideoRoom_social.jpg)
+![Social](https://github.com/Andranik-Asilbekyan/VideoRoom/blob/master/images/VideoRoom_social.jpg?raw=true)
 
-![VideoRoom](Video_Room.jpg)
+![VideoRoom](https://github.com/Andranik-Asilbekyan/VideoRoom/blob/master/images/Video_Room.jpg?raw=true)
