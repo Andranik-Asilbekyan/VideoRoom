@@ -2,7 +2,7 @@ package com.andranikas.videoroom.video
 
 import android.content.Context
 import android.util.AttributeSet
-import android.widget.LinearLayout
+import android.widget.FrameLayout
 import androidx.lifecycle.LifecycleOwner
 import com.andranikas.videoroom.R
 import com.andranikas.videoroom.video.core.VideoProvider
@@ -13,7 +13,7 @@ class VideoView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
-) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
+) : FrameLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     private lateinit var lifecycleOwner: LifecycleOwner
 

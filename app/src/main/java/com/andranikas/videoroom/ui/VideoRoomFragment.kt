@@ -48,6 +48,11 @@ class VideoRoomFragment : Fragment(), PermissionsFragment.OnPermissionFragmentIn
             else -> super.onOptionsItemSelected(item)
         }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewProvider.clear()
+    }
+
     override fun onPermissionsGranted() {
         viewProvider.onPermissionsGranted()
     }

@@ -2,7 +2,6 @@ package com.andranikas.videoroom.media
 
 import android.annotation.SuppressLint
 import android.transition.TransitionManager
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -15,6 +14,7 @@ import com.andranikas.videoroom.R
 import com.andranikas.videoroom.camera.SelfieView
 import com.andranikas.videoroom.video.VideoView
 import com.google.android.material.card.MaterialCardView
+import kotlinx.coroutines.*
 import kotlin.random.Random
 
 class MediaViewProvider(
@@ -30,6 +30,7 @@ class MediaViewProvider(
    private var itemMaxWidth = widthPixels / ITEMS_IN_WIDTH
    private var itemHeight = itemMaxHeight / 2
    private val reservedCells = mutableSetOf<Pair<Int, Int>>()
+   private val uiScope = CoroutineScope(Dispatchers.Main)
    private lateinit var selfieView: SelfieView
    private lateinit var selfieCard: MaterialCardView
 
@@ -38,15 +39,19 @@ class MediaViewProvider(
    }
 
    fun addSelfieView() {
-      container.post {
-         selfieCard = layoutInflater.inflate(R.layout.item_selfie_view, container, false) as MaterialCardView
-         selfieCard.layoutParams = FrameLayout.LayoutParams(itemHeight, itemHeight)
-         selfieCard.radius = (itemHeight / 2).toFloat()
-         selfieView = selfieCard.children.first() as SelfieView
-         selfieView.setup(itemHeight / 2, childFragmentManager, viewLifecycleOwner)
-         container.addView(selfieCard)
-         val position = generateCellPosition()
-         putViewInRandomPosition(position, selfieCard.id)
+      uiScope.launch {
+         withContext(Dispatchers.Default) {
+            selfieCard = layoutInflater.inflate(R.layout.item_selfie_view, container, false) as MaterialCardView
+            selfieCard.layoutParams = FrameLayout.LayoutParams(itemHeight, itemHeight)
+            selfieCard.radius = (itemHeight / 2).toFloat()
+            selfieView = selfieCard.children.first() as SelfieView
+            selfieView.setup(itemHeight / 2, childFragmentManager, viewLifecycleOwner)
+            val position = generateCellPosition()
+            withContext(Dispatchers.Main) {
+               container.addView(selfieCard)
+               putViewInRandomPosition(position, selfieCard.id)
+            }
+         }
       }
    }
 
@@ -57,14 +62,20 @@ class MediaViewProvider(
    }
 
    fun addVideoView(onNoSpace: (() -> Unit?)? = null) {
-      container.post {
-         val position = generateCellPosition()
-         position.takeIf {
-            it.first == OUT_OF_SPACE_POSITION && it.second == OUT_OF_SPACE_POSITION
-         }?.also {
-            onNoSpace?.invoke()
-         } ?: addVideoIfSpace(position)
+      uiScope.launch {
+         withContext(Dispatchers.Default) {
+            val position = generateCellPosition()
+            position.takeIf {
+               it.first == OUT_OF_SPACE_POSITION && it.second == OUT_OF_SPACE_POSITION
+            }?.also {
+               withContext(Dispatchers.Main) { onNoSpace?.invoke() }
+            } ?: addVideoIfSpace(position)
+         }
       }
+   }
+
+   fun clear() {
+      uiScope.cancel()
    }
 
    fun onPermissionsGranted() {
@@ -83,15 +94,17 @@ class MediaViewProvider(
       }
    }
 
-   private fun addVideoIfSpace(position: Pair<Int, Int>) {
+   private suspend fun addVideoIfSpace(position: Pair<Int, Int>) {
       val videoCard = layoutInflater.inflate(R.layout.item_video_view, container, false) as MaterialCardView
       val videoView = videoCard.children.first() as VideoView
       videoView.setup(viewLifecycleOwner)
       videoCard.layoutParams = FrameLayout.LayoutParams(itemHeight, itemHeight)
       videoCard.radius = (itemHeight / 2).toFloat()
       videoCard.id = View.generateViewId()
-      container.addView(videoCard)
-      putViewInRandomPosition(position, videoCard.id)
+      withContext(Dispatchers.Main) {
+         container.addView(videoCard)
+         putViewInRandomPosition(position, videoCard.id)
+      }
    }
 
    private fun putViewInRandomPosition(cellPosition: Pair<Int, Int>, childId: Int) {
@@ -142,7 +155,7 @@ class MediaViewProvider(
          selfieCard.animate()
             .x(toX)
             .y(toY)
-            .setDuration(500)
+            .setDuration(700)
             .start()
       }
    }
