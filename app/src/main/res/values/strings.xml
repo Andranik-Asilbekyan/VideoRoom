@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">VideoRoom</string>
+    <string name="permission_no_camera_permission">You haven\'t given the camera permission</string>
+    <string name="permission_denied_title">Permission denied!</string>
+    <string name="permission_denied_message">To enable access, tap Settings and turn on the permission</string>
+    <string name="permission_close_button">Close</string>
+    <string name="permission_settings_button">Settings</string>
+    <string name="permission_request_button">Request</string>
+    <string name="add_video">Add Video</string>
+    <string name="no_space_dialog_title">There is no space</string>
+    <string name="no_space_dialog_message">The board will reset after app restart</string>
+</resources>
