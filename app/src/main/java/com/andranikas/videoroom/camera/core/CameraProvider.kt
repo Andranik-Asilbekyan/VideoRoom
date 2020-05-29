@@ -53,8 +53,8 @@ class CameraProvider(
             }.setTargetRotation(rotation).build()
 
             try {
-                val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
-                preview.setSurfaceProvider(view.createSurfaceProvider(camera.cameraInfo))
+                cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+                preview.setSurfaceProvider(view.createSurfaceProvider())
             } catch(exc: Exception) {
                 Log.e(LOG_TAG, "Camera preview failed", exc)
             }
